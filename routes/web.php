@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\QuizCodeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,5 +29,7 @@ Route::get('/admin/login', function () {
 Route::get('/join-quiz', function () {
     return view('quiz.join');
 });
+
+Route::post('/check-code', [QuizCodeController::class, 'checkCode'])->name('check-code');
 
 require __DIR__.'/auth.php';
