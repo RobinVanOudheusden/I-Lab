@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Quiz;
+
 class QuizController extends Controller
 {
     public function index()
@@ -14,8 +15,13 @@ class QuizController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|unique:quiz,name',
+        ]);
+
         $quiz = Quiz::create([
             'name' => $request->name,
+            'questions' => [], // Initialize with empty questions
         ]);
         return redirect()->route('quiz.edit', $quiz->id);
     }
@@ -23,7 +29,7 @@ class QuizController extends Controller
     public function edit($id)
     {
         $quiz = Quiz::findOrFail($id);
-        // Assuming 'questions' is a JSON field in the 'quizzes' table
+        // Assuming 'questions' is a JSON field in the 'quiz' table
         $questions = $quiz->questions ?? [];
 
         return view('quiz.edit', compact('quiz', 'questions'));
@@ -31,24 +37,37 @@ class QuizController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required|string|unique:quiz,name,' . $id,
+            'questions' => 'required|json',
+        ]);
+
         $quiz = Quiz::find($id);
         if (!$quiz) {
             return redirect()->route('quiz.index')->with('error', 'Quiz not found');
         }
-        else if (Quiz::where('name', $request->name)->exists()) {   
+        else if (Quiz::where('name', $request->name)->where('id', '!=', $id)->exists()) {   
             return redirect()->route('quiz.edit', $id)->with('error', 'Quiz name already exists');
         }
         else {
             $quiz->name = $request->name;
+            // Decode the JSON questions to ensure they're stored correctly
+            $quiz->questions = json_decode($request->questions, true);
             $quiz->save();
-            return redirect()->route('quiz.edit', $id);
+            return redirect()->route('quiz.edit', $id)->with('success', 'Quiz updated successfully.');
         }
     }
 
-    public function getAllQuestions($id)
+    public function destroy($id)
     {
+        // Implement destroy logic if necessary
         $quiz = Quiz::find($id);
-        $questions = $quiz->questions;
-        return response()->json($questions);
+        if ($quiz) {
+            $quiz->delete();
+            return redirect()->route('quiz.index')->with('success', 'Quiz deleted successfully.');
+        }
+        return redirect()->route('quiz.index')->with('error', 'Quiz not found.');
     }
+
+    // Remove getAllQuestions method if it's no longer needed
 }

@@ -12,13 +12,8 @@ class Quiz extends Model
     protected $table = 'quiz';
     protected $fillable = ['name', 'questions'];
 
-    // Add the following cast
+    // Cast the 'questions' attribute to an array
     protected $casts = [
         'questions' => 'array',
     ];
-
-    public function questions()
-    {
-        return $this->hasMany(Question::class);
-    }
 }
