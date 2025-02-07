@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuizCodeController;
+use App\Http\Controllers\QuizController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,7 +20,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/teacher/login', function () {
-    return view('teacher.login');
+    return view('auth.teacher.login');
 });
 
 Route::get('/admin/login', function () {
@@ -31,5 +32,18 @@ Route::get('/join-quiz', function () {
 });
 
 Route::post('/check-code', [QuizCodeController::class, 'checkCode'])->name('check-code');
+
+Route::get('/create-quiz', function () {
+    return view('quiz.create');
+});
+
+Route::get('/quiz', [QuizController::class, 'index'])->name('quiz.index');
+
+Route::post('/quiz', [QuizController::class, 'store'])->name('quiz.store');
+
+Route::get('/quiz/{id}/edit', [QuizController::class, 'edit'])->name('quiz.edit');  
+
+Route::put('/quiz/{id}', [QuizController::class, 'update'])->name('quiz.update');
+
 
 require __DIR__.'/auth.php';
